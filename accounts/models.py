@@ -62,4 +62,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         if self.username:
             return
         
+        base = self.email.split('@')[0].lower()
+        username = base
+
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base}{counter}"
+            counter += 1
         
+        self.username = username
+    
+    # Auto-call this before every save
+    def save(self, *args, **kwargs):
+        self.generate_unique_username()
+        super().save(*args, **kwargs)        
